@@ -41,7 +41,6 @@
 //#include <sensor_msgs/Image.h>
 #include <sensor_msgs/msg/camera_info.hpp>
 #include <sensor_msgs/msg/image.hpp>
-#include <sensor_msgs/msg/point_cloud2.hpp>
 #include <builtin_interfaces/msg/time.hpp>
 
 //#include <dynamic_reconfigure/server.h>
@@ -137,7 +136,7 @@ private:
   rclcpp::publisher::Publisher<sensor_msgs::msg::Image>::SharedPtr pub_depth_raw_;
   rclcpp::publisher::Publisher<sensor_msgs::msg::Image>::SharedPtr pub_color_;
   rclcpp::publisher::Publisher<sensor_msgs::msg::Image>::SharedPtr pub_ir_;
-  rclcpp::publisher::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pub_point_cloud_;
+  rclcpp::publisher::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr pub_depth_camera_info_;
   //image_transport::CameraPublisher pub_depth_raw_;
   //image_transport::CameraPublisher pub_ir_;
   //ros::Publisher pub_projector_info_;

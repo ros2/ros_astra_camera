@@ -14,7 +14,6 @@
   <depend>builtin_interfaces</depend>
   <depend>rclcpp</depend>
   <depend>boost</depend>
-  <depend>image_geometry</depend>
 
   <export>
     <build_type>ament_cmake</build_type>

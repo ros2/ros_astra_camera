@@ -169,3 +169,4 @@ void AstraFrameListener::onNewFrame(openni::VideoStream& stream)
 }
 
 }
+
