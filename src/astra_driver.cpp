@@ -79,7 +79,6 @@ AstraDriver::AstraDriver(rclcpp::node::Node::SharedPtr& n, rclcpp::node::Node::S
 	{
 		int shmid;
 		char *shm = NULL;
-		char *tmp;
 		if(  bootOrder==1 )
 		{
 			if( (shmid = shmget((key_t)0401, 1, 0666|IPC_CREAT)) == -1 )   
