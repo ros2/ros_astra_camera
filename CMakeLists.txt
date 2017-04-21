@@ -51,9 +51,10 @@ add_library(astra_wrapper
    src/astra_video_mode.cpp
 )
 ament_target_dependencies(astra_wrapper
-  "rclcpp"
   "builtin_interfaces"
-  "sensor_msgs")
+  "rclcpp"
+  "sensor_msgs"
+)
 target_link_libraries(astra_wrapper -lOpenNI2Orbbec ${Boost_LIBRARIES})
 add_dependencies(astra_wrapper astra_openni2)
 
