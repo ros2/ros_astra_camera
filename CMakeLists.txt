@@ -60,10 +60,10 @@ add_dependencies(astra_wrapper astra_openni2)
 
 add_library(astra_driver_lib src/astra_driver.cpp)
 ament_target_dependencies(astra_driver_lib
-  "rclcpp"
   "builtin_interfaces"
+  "rclcpp"
   "sensor_msgs"
-  "image_geometry")
+)
 target_link_libraries(astra_driver_lib astra_wrapper ${Boost_LIBRARIES})
 add_dependencies(astra_driver_lib astra_openni2)
 
