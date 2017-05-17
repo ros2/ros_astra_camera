@@ -635,6 +635,15 @@ sensor_msgs::msg::CameraInfo::SharedPtr AstraDriver::getDefaultCameraInfo(int wi
   info->p[6]  = info->k[5];     // cy
   info->p[10] = 1.0;
 
+  info->binning_x = 0;
+  info->binning_y = 0;
+
+  info->roi.x_offset = 0;
+  info->roi.y_offset = 0;
+  info->roi.height = 0;
+  info->roi.width = 0;
+  info->roi.do_rectify = 0;
+
   return info;
 }
 
