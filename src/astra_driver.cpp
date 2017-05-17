@@ -37,10 +37,10 @@
 #include <stdlib.h>  
 #include <stdio.h>  
 #include <sys/shm.h>  
-//#include <sensor_msgs/image_encodings.h>
+
 #include <sensor_msgs/distortion_models.hpp>
+#include <sensor_msgs/image_encodings.hpp>
 #include <sensor_msgs/msg/camera_info.hpp>
-#include "astra_camera/image_encodings.h"
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/thread/thread.hpp>

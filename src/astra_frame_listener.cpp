@@ -29,17 +29,13 @@
  *
  *      Author: Tim Liu (liuhua@orbbec.com)
  */
-#include "openni2/OpenNI.h"
-
 #include "astra_camera/astra_frame_listener.h"
 #include "astra_camera/astra_timer_filter.h"
-
-//#include <sensor_msgs/image_encodings.h>
-#include "astra_camera/image_encodings.h"
-
-//#include <ros/ros.h>
 #include "astra_camera/ros12_shim.h"
+#include "openni2/OpenNI.h"
+
 #include <rcl/time.h>
+#include <sensor_msgs/image_encodings.hpp>
 
 #define TIME_FILTER_LENGTH 15
 
