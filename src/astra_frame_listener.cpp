@@ -68,8 +68,8 @@ void AstraFrameListener::onNewFrame(openni::VideoStream& stream)
     sensor_msgs::msg::Image::SharedPtr image(new sensor_msgs::msg::Image);
 
     //ros::Time ros_now = ros::Time::now();
-    rcl_time_point_value_t ros_now;
-    if (rcl_system_time_now(&ros_now) != RCL_RET_OK)
+    rcutils_time_point_value_t ros_now;
+    if (rcutils_system_time_now(&ros_now) != RCUTILS_RET_OK)
     {
       ROS_ERROR("Failed to get current time; ignoring frame");
       return;
