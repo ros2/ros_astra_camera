@@ -89,6 +89,4 @@ install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CMAKE_INSTALL_PREFIX}/include/
 )
 
-ament_export_libraries(astra_driver_lib)
-
 ament_package()
