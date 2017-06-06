@@ -73,16 +73,8 @@ add_executable(astra_camera_node
 target_link_libraries(astra_camera_node astra_driver_lib)
 add_dependencies(astra_camera_node astra_openni2)
 
-install(TARGETS astra_camera_node
+install(TARGETS astra_camera_node astra_wrapper astra_driver_lib
   DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/
-)
-
-install(TARGETS astra_wrapper
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/
-)
-
-install(TARGETS astra_driver_lib
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/
 )
 
 install(FILES ${CMAKE_BINARY_DIR}/openni2/Redist/libOpenNI2Orbbec.so
