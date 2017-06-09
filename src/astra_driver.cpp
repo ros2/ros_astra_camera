@@ -54,6 +54,7 @@ AstraDriver::AstraDriver(rclcpp::node::Node::SharedPtr& n, rclcpp::node::Node::S
     pnh_(pnh),
     device_manager_(AstraDeviceManager::getSingelton()),
     config_init_(false),
+    depth_registration_(false),
     data_skip_ir_counter_(0),
     data_skip_color_counter_(0),
     data_skip_depth_counter_ (0),
