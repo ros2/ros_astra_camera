@@ -95,8 +95,8 @@ install(DIRECTORY ${CMAKE_BINARY_DIR}/openni2/Redist/OpenNI2
   DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
 )
 
-install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME}/
+install(DIRECTORY include/${PROJECT_NAME}
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/include/
 )
 
 ament_export_include_directories(include)
