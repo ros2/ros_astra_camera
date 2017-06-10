@@ -65,6 +65,7 @@ AstraDriver::AstraDriver(rclcpp::node::Node::SharedPtr& n, rclcpp::node::Node::S
 {
 
   genVideoModeTableMap();
+
   readConfigFromParameterServer();
 
 #if MULTI_ASTRA
