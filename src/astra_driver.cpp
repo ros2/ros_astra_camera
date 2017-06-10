@@ -728,6 +728,15 @@ sensor_msgs::msg::CameraInfo::SharedPtr AstraDriver::getDepthCameraInfo(int widt
 void AstraDriver::readConfigFromParameterServer()
 {
   depth_frame_id_ = std::string("openni_depth_optical_frame");
+
+  // Load the depth registration parameter, which may have been set before
+  //   driver initialization.
+  pnh_->get_parameter("depth_registration", depth_registration_);
+  if(depth_registration_)
+  {
+    std::cout << "Astra depth registration enabled" << std::endl;
+  }
+
 // TODO
 /*
   if (!pnh_.getParam("device_id", device_id_))
@@ -749,14 +758,6 @@ void AstraDriver::readConfigFromParameterServer()
   pnh_.param("depth_camera_info_url", ir_info_url_, std::string());
 */
 
-  // TODO: ultimately, this should probably be handled by dynamic reconfigure
-  //   in the methods such as applyConfigToOpenNIDevice(), but for now, we
-  //   just want to read the initial state from the parameter server.
-  pnh_->get_parameter("depth_registration", depth_registration_);
-  if(depth_registration_)
-  {
-    std::cout << "Astra depth registration enabled" << std::endl;
-  }
 }
 
 std::string AstraDriver::resolveDeviceURI(const std::string& device_id) throw(AstraException)
