@@ -14,7 +14,8 @@
 
   <depend>boost</depend>
   <depend>builtin_interfaces</depend>
-  <depend>libusb-1.0-dev</depend>
+  <depend>libudev-dev</depend>
+  <depend>libusb-1.0-dev</depend>  
   <depend>rclcpp</depend>
   <depend>sensor_msgs</depend>
 
