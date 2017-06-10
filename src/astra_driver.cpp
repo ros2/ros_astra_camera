@@ -65,7 +65,6 @@ AstraDriver::AstraDriver(rclcpp::node::Node::SharedPtr& n, rclcpp::node::Node::S
 {
 
   genVideoModeTableMap();
-
   readConfigFromParameterServer();
 
 #if MULTI_ASTRA
@@ -750,6 +749,14 @@ void AstraDriver::readConfigFromParameterServer()
   pnh_.param("depth_camera_info_url", ir_info_url_, std::string());
 */
 
+  // TODO: ultimately, this should probably be handled by dynamic reconfigure
+  //   in the methods such as applyConfigToOpenNIDevice(), but for now, we
+  //   just want to read the initial state from the parameter server.
+  pnh_->get_parameter("depth_registration", depth_registration_);
+  if(depth_registration_)
+  {
+    std::cout << "Astra depth registration enabled" << std::endl;
+  }
 }
 
 std::string AstraDriver::resolveDeviceURI(const std::string& device_id) throw(AstraException)
