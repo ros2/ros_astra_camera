@@ -734,7 +734,7 @@ void AstraDriver::readConfigFromParameterServer()
   pnh_->get_parameter("depth_registration", depth_registration_);
   if(depth_registration_)
   {
-    std::cout << "Astra depth registration enabled" << std::endl;
+    ROS_INFO("Astra depth registration enabled");
   }
 
 // TODO
