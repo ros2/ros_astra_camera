@@ -723,6 +723,15 @@ sensor_msgs::msg::CameraInfo::SharedPtr AstraDriver::getDepthCameraInfo(int widt
 void AstraDriver::readConfigFromParameterServer()
 {
   depth_frame_id_ = std::string("openni_depth_optical_frame");
+
+  // Load the depth registration parameter, which may have been set before
+  //   driver initialization.
+  pnh_->get_parameter("depth_registration", depth_registration_);
+  if(depth_registration_)
+  {
+    ROS_INFO("Astra depth registration enabled");
+  }
+
 // TODO
 /*
   if (!pnh_.getParam("device_id", device_id_))
