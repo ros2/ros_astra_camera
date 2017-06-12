@@ -749,8 +749,9 @@ sensor_msgs::msg::CameraInfo::SharedPtr AstraDriver::getDepthCameraInfo(int widt
 
 void AstraDriver::readConfigFromParameterServer()
 {
-  // Load the depth registration parameter, which may have been set before
-  //   driver initialization.
+  depth_frame_id_ = std::string("openni_depth_optical_frame");
+
+  // Load channel disabling parameters
   pnh_->get_parameter("use_ir", can_publish_ir_);
   if(!can_publish_ir_)
   {
@@ -759,16 +760,13 @@ void AstraDriver::readConfigFromParameterServer()
   pnh_->get_parameter("use_color", can_publish_color_);
   if(!can_publish_color_)
   {
-    ROS_INFO("Astra rgb camera disabled");
+    ROS_INFO("Astra RGB camera disabled");
   }
   pnh_->get_parameter("use_depth", can_publish_depth_);
   if(!can_publish_depth_)
   {
     ROS_INFO("Astra depth camera disabled");
   }
-
-
-  depth_frame_id_ = std::string("openni_depth_optical_frame");
 
   // Load the depth registration parameter, which may have been set before
   //   driver initialization.
