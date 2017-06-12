@@ -41,6 +41,11 @@ static std::string get_command_option(const std::vector<std::string> &args, cons
   return std::string();
 }
 
+static bool get_command_option_exists(const std::vector<std::string> &args, const std::string &option)
+{
+  return std::find(args.begin(), args.end(), option) != args.end();
+}
+
 static bool parse_command_options(int argc, char **argv, size_t *width, size_t *height,
                                   double *framerate, size_t *depth_width, size_t *depth_height,
                                   double *depth_framerate, astra_wrapper::PixelFormat *dformat,
@@ -92,14 +97,9 @@ static bool parse_command_options(int argc, char **argv, size_t *width, size_t *
     }
   }
 
-  std::string no_ir_str = get_command_option(args, "-I");
-  *use_ir = no_ir_str.empty();
-
-  std::string no_color_str = get_command_option(args, "-C");
-  *use_color = no_color_str.empty();
-
-  std::string no_depth_str = get_command_option(args, "-D");
-  *use_depth = no_depth_str.empty();
+  *use_ir = !get_command_option_exists(args, "-I");
+  *use_color = !get_command_option_exists(args, "-C");
+  *use_depth = !get_command_option_exists(args, "-D");
 
   return true;
 }
