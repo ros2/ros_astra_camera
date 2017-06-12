@@ -98,6 +98,11 @@ private:
   void depthConnectCb();
   void irConnectCb();
 
+  /// Start the IR stream unless IR streaming is disabled. Because of the
+  ///   restriction on IR/RGB simultaneous streaming, IR streaming is initiated
+  ///   from multiple methods.
+  void irAttemptStream();
+
   //bool getSerialCb(astra_camera::GetSerialRequest& req, astra_camera::GetSerialResponse& res);
 
   //void configCb(Config &config, uint32_t level);
@@ -183,7 +188,14 @@ private:
   bool depth_subscribers_;
   bool depth_raw_subscribers_;
 
-  bool use_device_time_;
+  /// If false, then camera will never start an IR stream.
+  bool can_publish_ir_;
+  /// If false, then camera will never start a color stream.
+  bool can_publish_color_;
+  /// If false, then camera will never start a depth stream.
+  bool can_publish_depth_;
+
+  // bool use_device_time_;
 
   //Config old_config_;
 };
