@@ -135,7 +135,6 @@ int main(int argc, char **argv){
   pnh->set_parameter_if_not_set("use_color", use_color);
   pnh->set_parameter_if_not_set("use_depth", use_depth);
 
-
   astra_wrapper::AstraDriver drv(n, pnh, width, height, framerate, dwidth, dheight, dframerate, dformat);
 
   rclcpp::spin(n);
