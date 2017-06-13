@@ -61,7 +61,10 @@ AstraDriver::AstraDriver(rclcpp::node::Node::SharedPtr& n, rclcpp::node::Node::S
     ir_subscribers_(false),
     color_subscribers_(false),
     depth_subscribers_(false),
-    depth_raw_subscribers_(false)
+    depth_raw_subscribers_(false),
+    can_publish_ir_(true),
+    can_publish_color_(true),
+    can_publish_depth_(true)
 {
 
   genVideoModeTableMap();
@@ -408,21 +411,27 @@ void AstraDriver::colorConnectCb()
   //color_subscribers_ = pub_color_.getNumSubscribers() > 0;
 
   //if (color_subscribers_ && !device_->isColorStreamStarted())
-  if (!device_->isIRStreamStarted())
+  if (!device_->isColorStreamStarted())
   {
-    // Can't stream IR and RGB at the same time. Give RGB preference.
-    if (device_->isIRStreamStarted())
+    if(can_publish_color_)
     {
-      ROS_ERROR("Cannot stream RGB and IR at the same time. Streaming RGB only.");
-      ROS_INFO("Stopping IR stream.");
-      device_->stopIRStream();
+      // Can't stream IR and RGB at the same time. Give RGB preference.
+      if (device_->isIRStreamStarted())
+      {
+        ROS_ERROR("Cannot stream RGB and IR at the same time. Streaming RGB only.");
+        ROS_INFO("Stopping IR stream.");
+        device_->stopIRStream();
+      }
+
+      device_->setColorFrameCallback(boost::bind(&AstraDriver::newColorFrameCallback, this, _1));
+
+      ROS_INFO("Starting color stream.");
+      device_->startColorStream();
     }
-
-    device_->setColorFrameCallback(boost::bind(&AstraDriver::newColorFrameCallback, this, _1));
-
-    ROS_INFO("Starting color stream.");
-    device_->startColorStream();
-
+    else
+    {
+      ROS_INFO("Attempted to start RGB stream, but RGB streaming was disabled.");
+    }
   }
   //else if (!color_subscribers_ && device_->isColorStreamStarted())
   else if (device_->isColorStreamStarted())
@@ -430,15 +439,14 @@ void AstraDriver::colorConnectCb()
     ROS_INFO("Stopping color stream.");
     device_->stopColorStream();
 
+    // TODO(Kukanani): With the IR subscriber check commented out, this section just
+    // blindly starts streaming IR data when the RGB stream is shut down.
     // Start IR if it's been blocked on RGB subscribers
     //bool need_ir = pub_ir_.getNumSubscribers() > 0;
     //if (need_ir && !device_->isIRStreamStarted())
     if (!device_->isIRStreamStarted())
     {
-      device_->setIRFrameCallback(boost::bind(&AstraDriver::newIRFrameCallback, this, _1));
-
-      ROS_INFO("Starting IR stream.");
-      device_->startIRStream();
+      irAttemptStream();
     }
   }
 }
@@ -455,10 +463,17 @@ void AstraDriver::depthConnectCb()
   //if (need_depth && !device_->isDepthStreamStarted())
   if (!device_->isDepthStreamStarted())
   {
-    device_->setDepthFrameCallback(boost::bind(&AstraDriver::newDepthFrameCallback, this, _1));
+    if(can_publish_depth_)
+    {
+      device_->setDepthFrameCallback(boost::bind(&AstraDriver::newDepthFrameCallback, this, _1));
 
-    ROS_INFO("Starting depth stream.");
-    device_->startDepthStream();
+      ROS_INFO("Starting depth stream.");
+      device_->startDepthStream();
+    }
+    else
+    {
+      ROS_INFO("Attempted to start depth stream, but depth streaming was disabled.");
+    }
   }
   //else if (!need_depth && device_->isDepthStreamStarted())
   else if (device_->isDepthStreamStarted())
@@ -484,10 +499,7 @@ void AstraDriver::irConnectCb()
     }
     else
     {
-      device_->setIRFrameCallback(boost::bind(&AstraDriver::newIRFrameCallback, this, _1));
-
-      ROS_INFO("Starting IR stream.");
-      device_->startIRStream();
+      irAttemptStream();
     }
   }
   //else if (!ir_subscribers_ && device_->isIRStreamStarted())
@@ -495,6 +507,21 @@ void AstraDriver::irConnectCb()
   {
     ROS_INFO("Stopping IR stream.");
     device_->stopIRStream();
+  }
+}
+
+void AstraDriver::irAttemptStream()
+{
+  if(can_publish_ir_)
+  {
+    device_->setIRFrameCallback(boost::bind(&AstraDriver::newIRFrameCallback, this, _1));
+
+    ROS_INFO("Starting IR stream.");
+    device_->startIRStream();
+  }
+  else
+  {
+    ROS_INFO("Attemped to start IR stream, but IR streaming was disabled.");
   }
 }
 
@@ -723,6 +750,23 @@ sensor_msgs::msg::CameraInfo::SharedPtr AstraDriver::getDepthCameraInfo(int widt
 void AstraDriver::readConfigFromParameterServer()
 {
   depth_frame_id_ = std::string("openni_depth_optical_frame");
+
+  // Load channel disabling parameters
+  pnh_->get_parameter("use_ir", can_publish_ir_);
+  if(!can_publish_ir_)
+  {
+    ROS_INFO("Astra IR camera disabled");
+  }
+  pnh_->get_parameter("use_color", can_publish_color_);
+  if(!can_publish_color_)
+  {
+    ROS_INFO("Astra RGB camera disabled");
+  }
+  pnh_->get_parameter("use_depth", can_publish_depth_);
+  if(!can_publish_depth_)
+  {
+    ROS_INFO("Astra depth camera disabled");
+  }
 
   // Load the depth registration parameter, which may have been set before
   //   driver initialization.
