@@ -439,7 +439,7 @@ void AstraDriver::colorConnectCb()
     ROS_INFO("Stopping color stream.");
     device_->stopColorStream();
 
-    // TODO: With the IR subscriber check commented out, this section just
+    // TODO(Kukanani): With the IR subscriber check commented out, this section just
     // blindly starts streaming IR data when the RGB stream is shut down.
     // Start IR if it's been blocked on RGB subscribers
     //bool need_ir = pub_ir_.getNumSubscribers() > 0;
