@@ -54,6 +54,8 @@ AstraDriver::AstraDriver(rclcpp::node::Node::SharedPtr& n, rclcpp::node::Node::S
     pnh_(pnh),
     device_manager_(AstraDeviceManager::getSingelton()),
     config_init_(false),
+    color_frame_id_("openni_color_optical_frame"),
+    depth_frame_id_("openni_depth_optical_frame"),
     depth_registration_(false),
     data_skip_ir_counter_(0),
     data_skip_color_counter_(0),
@@ -749,7 +751,13 @@ sensor_msgs::msg::CameraInfo::SharedPtr AstraDriver::getDepthCameraInfo(int widt
 
 void AstraDriver::readConfigFromParameterServer()
 {
-  depth_frame_id_ = std::string("openni_depth_optical_frame");
+  // Load frame name parameters
+  // TODO(Kukanani): reinstate ir_frame_id_ as listed in the commented section below
+  pnh_->get_parameter("depth_frame_id", depth_frame_id_);
+  ROS_INFO_STREAM("Using depth frame id " << depth_frame_id_);
+
+  pnh_->get_parameter("color_frame_id", color_frame_id_);
+  ROS_INFO_STREAM("Using color frame id " << color_frame_id_);
 
   // Load channel disabling parameters
   pnh_->get_parameter("use_ir", can_publish_ir_);
