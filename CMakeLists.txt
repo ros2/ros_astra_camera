@@ -80,7 +80,7 @@ target_link_libraries(astra_camera_node astra_driver_lib)
 add_dependencies(astra_camera_node astra_openni2)
 
 install(TARGETS astra_camera_node
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 install(TARGETS astra_wrapper astra_driver_lib
