@@ -105,6 +105,14 @@ install(DIRECTORY include/${PROJECT_NAME}
   DESTINATION ${CMAKE_INSTALL_PREFIX}/include/
 )
 
+install(FILES 56-orbbec-usb.rules
+  DESTINATION share/${PROJECT_NAME}
+)
+
+install(PROGRAMS scripts/create_udev_rules
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 ament_export_include_directories(include)
 ament_export_libraries(astra_driver_lib astra_wrapper)
 ament_package()
