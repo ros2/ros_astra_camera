@@ -89,10 +89,6 @@ install(TARGETS astra_wrapper astra_driver_lib
   RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
 )
 
-install(TARGETS astra_wrapper astra_driver_lib
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/
-)
-
 install(FILES ${CMAKE_BINARY_DIR}/openni2/Redist/libOpenNI2Orbbec.so
   DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
 )
