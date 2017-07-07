@@ -98,7 +98,7 @@ install(DIRECTORY ${CMAKE_BINARY_DIR}/openni2/Redist/OpenNI2
 )
 
 install(DIRECTORY include/${PROJECT_NAME}
-  DESTINATION include/
+  DESTINATION include
 )
 
 install(FILES 56-orbbec-usb.rules
