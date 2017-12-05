@@ -69,7 +69,7 @@ class AstraDriver
 {
 public:
   //AstraDriver(ros::NodeHandle& n, ros::NodeHandle& pnh) ;
-  AstraDriver(rclcpp::node::Node::SharedPtr& n, rclcpp::node::Node::SharedPtr& pnh, size_t width, size_t height, double framerate,
+  AstraDriver(rclcpp::Node::SharedPtr& n, rclcpp::Node::SharedPtr& pnh, size_t width, size_t height, double framerate,
               size_t dwidth, size_t dheight, double dframerate, PixelFormat dformat);
 
 private:
@@ -118,8 +118,8 @@ private:
   void setColorVideoMode(const AstraVideoMode& color_video_mode);
   void setDepthVideoMode(const AstraVideoMode& depth_video_mode);
 
-  rclcpp::node::Node::SharedPtr nh_;
-  rclcpp::node::Node::SharedPtr pnh_;
+  rclcpp::Node::SharedPtr nh_;
+  rclcpp::Node::SharedPtr pnh_;
 
   boost::shared_ptr<AstraDeviceManager> device_manager_;
   boost::shared_ptr<AstraDevice> device_;
@@ -138,10 +138,10 @@ private:
   // published topics
   //image_transport::CameraPublisher pub_color_;
   //image_transport::CameraPublisher pub_depth_;
-  rclcpp::publisher::Publisher<sensor_msgs::msg::Image>::SharedPtr pub_depth_raw_;
-  rclcpp::publisher::Publisher<sensor_msgs::msg::Image>::SharedPtr pub_color_;
-  rclcpp::publisher::Publisher<sensor_msgs::msg::Image>::SharedPtr pub_ir_;
-  rclcpp::publisher::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr pub_depth_camera_info_;
+  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr pub_depth_raw_;
+  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr pub_color_;
+  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr pub_ir_;
+  rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr pub_depth_camera_info_;
   //image_transport::CameraPublisher pub_depth_raw_;
   //image_transport::CameraPublisher pub_ir_;
   //ros::Publisher pub_projector_info_;

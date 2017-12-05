@@ -128,8 +128,8 @@ int main(int argc, char **argv){
   }
 
   rclcpp::init(argc, argv);
-  rclcpp::node::Node::SharedPtr n = rclcpp::node::Node::make_shared("astra_camera");
-  rclcpp::node::Node::SharedPtr pnh = rclcpp::node::Node::make_shared("astra_camera_");
+  rclcpp::Node::SharedPtr n = rclcpp::Node::make_shared("astra_camera");
+  rclcpp::Node::SharedPtr pnh = rclcpp::Node::make_shared("astra_camera_");
 
   pnh->set_parameter_if_not_set("use_ir", use_ir);
   pnh->set_parameter_if_not_set("use_color", use_color);
