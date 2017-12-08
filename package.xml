@@ -3,10 +3,9 @@
   <name>astra_camera</name>
   <version>2.0.0</version>
   <description>Drivers for Orbbec Astra Devices. </description>
-  <author email="liuhua@orbbec.com">Tim Liu</author>
-  <license>BSD</license>
-
   <maintainer email="clalancette@openrobotics.org">Chris Lalancette</maintainer>
+  <license>BSD</license>
+  <author email="liuhua@orbbec.com">Tim Liu</author>
 
   <build_depend>git</build_depend>
 
