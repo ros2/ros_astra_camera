@@ -103,8 +103,8 @@ AstraDriver::AstraDriver(rclcpp::Node::SharedPtr& n, rclcpp::Node::SharedPtr& pn
 			}
 			shm = (char *)shmat(shmid, 0, 0);
 			while( *shm!=bootOrder);
-			 initDevice();
-			 ROS_WARN("*********** device_id %s already open device************************ ", device_id_.c_str());
+			initDevice();
+			ROS_WARN("*********** device_id %s already open device************************ ", device_id_.c_str());
 			*shm = (bootOrder+1);
 		}
 		if(  bootOrder==1 )

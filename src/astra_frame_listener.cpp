@@ -34,6 +34,7 @@
 #include "astra_camera/ros12_shim.h"
 #include "openni2/OpenNI.h"
 
+#include <cmath>
 #include <rcl/time.h>
 #include <sensor_msgs/image_encodings.hpp>
 
@@ -103,7 +104,7 @@ void AstraFrameListener::onNewFrame(openni::VideoStream& stream)
       double corrected_timestamp = device_time_in_sec+filtered_time_diff;
 
       //image->header.stamp.fromSec(corrected_timestamp);
-      image->header.stamp.sec = floor(corrected_timestamp);
+      image->header.stamp.sec = std::floor(corrected_timestamp);
       image->header.stamp.nanosec = (corrected_timestamp - floor(corrected_timestamp)) * 1000000000;
 
       ROS_DEBUG("Time interval between frames: %.4f ms", (float)((corrected_timestamp-prev_time_stamp_)*1000.0));
