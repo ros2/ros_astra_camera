@@ -1,0 +1,100 @@
+diff --git a/Source/Drivers/orbbec/Formats/XnFormatsMirror.cpp b/Source/Drivers/orbbec/Formats/XnFormatsMirror.cpp
+index bbbf213..cc8bfe0 100644
+--- a/Source/Drivers/orbbec/Formats/XnFormatsMirror.cpp
++++ b/Source/Drivers/orbbec/Formats/XnFormatsMirror.cpp
+@@ -43,8 +43,14 @@ XnStatus XnMirrorOneBytePixels(XnUChar* pBuffer, XnUInt32 nBufferSize, XnUInt32
+ 	XnUInt8* pSrcEnd = pSrc + nBufferSize;
+ 	XnUInt8* pDest = NULL;
+ 	XnUInt8* pDestVal = &pLineBuffer[0] + nLineSize - 1;
++#ifndef _WIN32
++#pragma GCC diagnostic push
++#pragma GCC diagnostic ignored "-Warray-bounds"
++#endif
+ 	XnUInt8* pDestEnd = &pLineBuffer[0] - 1;
+-
++#ifndef _WIN32
++#pragma GCC diagnostic pop
++#endif
+ 	if (nLineSize > XN_MIRROR_MAX_LINE_SIZE)
+ 	{
+ 		return (XN_STATUS_INTERNAL_BUFFER_TOO_SMALL);
+@@ -76,7 +82,14 @@ XnStatus XnMirrorTwoBytePixels(XnUChar* pBuffer, XnUInt32 nBufferSize, XnUInt32
+ 	XnUInt16* pSrcEnd = pSrc + nBufferSize / sizeof(XnUInt16);
+ 	XnUInt16* pDest = NULL;
+ 	XnUInt16* pDestVal = &pLineBuffer[0] + nLineSize - 1;
++#ifndef _WIN32
++#pragma GCC diagnostic push
++#pragma GCC diagnostic ignored "-Warray-bounds"
++#endif
+ 	XnUInt16* pDestEnd = &pLineBuffer[0] - 1;
++#ifndef _WIN32
++#pragma GCC diagnostic pop
++#endif
+ 	XnUInt16 nMemCpyLineSize = (XnUInt16)(nLineSize * sizeof(XnUInt16));
+ 	XnUInt16 nValue;
+ 
+@@ -112,7 +125,14 @@ XnStatus XnMirrorThreeBytePixels(XnUChar* pBuffer, XnUInt32 nBufferSize, XnUInt3
+ 	XnUInt8* pSrcEnd = pSrc + nBufferSize;
+ 	XnUInt8* pDest = NULL;
+ 	XnUInt8* pDestVal = &pLineBuffer[0] + nLineSize * 3 - 1;
++#ifndef _WIN32
++#pragma GCC diagnostic push
++#pragma GCC diagnostic ignored "-Warray-bounds"
++#endif
+ 	XnUInt8* pDestEnd = &pLineBuffer[0] - 1;
++#ifndef _WIN32
++#pragma GCC diagnostic pop
++#endif
+ 	XnUInt16 nMemCpyLineSize = (XnUInt16)(nLineSize * 3);
+ 
+ 	if (nMemCpyLineSize > XN_MIRROR_MAX_LINE_SIZE)
+diff --git a/Source/Drivers/orbbec/Sensor/XnFrameStreamProcessor.cpp b/Source/Drivers/orbbec/Sensor/XnFrameStreamProcessor.cpp
+index d6105ec..fc459e3 100644
+--- a/Source/Drivers/orbbec/Sensor/XnFrameStreamProcessor.cpp
++++ b/Source/Drivers/orbbec/Sensor/XnFrameStreamProcessor.cpp
+@@ -28,6 +28,10 @@
+ //---------------------------------------------------------------------------
+ // Code
+ //---------------------------------------------------------------------------
++#ifndef _WIN32
++#pragma GCC diagnostic push
++#pragma GCC diagnostic ignored "-Wformat-overflow="
++#endif
+ XnFrameStreamProcessor::XnFrameStreamProcessor(XnFrameStream* pStream, XnSensorStreamHelper* pHelper, XnFrameBufferManager* pBufferManager, XnUInt16 nTypeSOF, XnUInt16 nTypeEOF) :
+ 	XnStreamProcessor(pStream, pHelper),
+ 	m_nTypeSOF(nTypeSOF),
+@@ -45,6 +49,9 @@ XnFrameStreamProcessor::XnFrameStreamProcessor(XnFrameStream* pStream, XnSensorS
+ 	m_InDump = xnDumpFileOpen(m_csInDumpMask, "%s_0.raw", m_csInDumpMask);
+ 	m_InternalDump = xnDumpFileOpen(m_csInternalDumpMask, "%s_0.raw", m_csInternalDumpMask);
+ }
++#ifndef _WIN32
++#pragma GCC diagnostic pop
++#endif
+ 
+ XnFrameStreamProcessor::~XnFrameStreamProcessor()
+ {
+diff --git a/Source/Drivers/orbbec/Sensor/XnSensorFirmwareParams.cpp b/Source/Drivers/orbbec/Sensor/XnSensorFirmwareParams.cpp
+index 476b88d..7046b76 100644
+--- a/Source/Drivers/orbbec/Sensor/XnSensorFirmwareParams.cpp
++++ b/Source/Drivers/orbbec/Sensor/XnSensorFirmwareParams.cpp
+@@ -251,6 +251,10 @@ void XnSensorFirmwareParams::Free()
+ 	m_AllFirmwareParams.Clear();
+ }
+ 
++#ifndef _WIN32
++#pragma GCC diagnostic push
++#pragma GCC diagnostic ignored "-Wformat-overflow="
++#endif
+ XnStatus XnSensorFirmwareParams::AddFirmwareParam(XnActualIntProperty& Property, XnUInt16 nFirmwareParam, XnFWVer nMinVer /* = XN_SENSOR_FW_VER_UNKNOWN */, XnFWVer nMaxVer /* = XN_SENSOR_FW_VER_UNKNOWN */, XnUInt16 nValueIfNotSupported /* = 0 */)
+ {
+ 	XnStatus nRetVal = XN_STATUS_OK;
+@@ -275,6 +279,9 @@ XnStatus XnSensorFirmwareParams::AddFirmwareParam(XnActualIntProperty& Property,
+ 
+ 	return (XN_STATUS_OK);
+ }
++#ifndef _WIN32
++#pragma GCC diagnostic pop
++#endif
+ 
+ XnStatus XnSensorFirmwareParams::AddFirmwareAudioParam(XnActualIntProperty& Property, XnUInt16 nFirmwareParam, XnFWVer nMinVer /* = XN_SENSOR_FW_VER_3_0 */, XnFWVer nMaxVer /* = XN_SENSOR_FW_VER_UNKNOWN */, XnUInt16 nValueIfNotSupported /* = 0 */)
+ {
