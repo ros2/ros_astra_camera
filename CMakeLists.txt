@@ -8,6 +8,7 @@ endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra)
+  add_compile_options(-Wno-deprecated)
 endif()
 
 find_package(ament_cmake REQUIRED)
@@ -27,6 +28,12 @@ endif()
 
 include(ExternalProject)
 
+if(WIN32)
+  set(patch_exe patch.exe)
+else()
+  set(patch_exe patch)
+endif()
+
 ExternalProject_Add(astra_openni2
   PREFIX astra_openni2
   # SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/astra_openni2/OpenNI2
@@ -38,6 +45,9 @@ ExternalProject_Add(astra_openni2
   BUILD_COMMAND make release FILTER=${obfilter}
   INSTALL_DIR openni2
   INSTALL_COMMAND tar -xjf <SOURCE_DIR>/Packaging/Final/OpenNI-Linux-2.3.tar.bz2 -C <INSTALL_DIR> --strip 1 && mkdir -p <INSTALL_DIR>/include && ln -fs <INSTALL_DIR>/Include <INSTALL_DIR>/include/openni2
+  PATCH_COMMAND
+    ${patch_exe} -p1 -N < ${CMAKE_CURRENT_SOURCE_DIR}/astra_openni2-patch.diff
+
 )
 
 link_directories(${CMAKE_CURRENT_BINARY_DIR}/openni2/Redist)
