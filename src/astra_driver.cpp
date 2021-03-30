@@ -49,9 +49,9 @@
 namespace astra_wrapper
 {
 
-AstraDriver::AstraDriver(rclcpp::Node::SharedPtr& n, rclcpp::Node::SharedPtr& pnh, size_t width, size_t height, double framerate, size_t dwidth, size_t dheight, double dframerate, PixelFormat dformat) :
-    nh_(n),
-    pnh_(pnh),
+AstraDriver::AstraDriver(const std::string& node_name, const rclcpp::NodeOptions &node_options, size_t width, size_t height, double framerate, size_t dwidth, size_t dheight, double dframerate, PixelFormat dformat) :
+    rclcpp::Node(node_name, node_options),
+    qos_(rclcpp::QoSInitialization::from_rmw(rmw_qos_profile_sensor_data)),
     device_manager_(AstraDeviceManager::getSingelton()),
     config_init_(false),
     color_frame_id_("openni_color_optical_frame"),
@@ -187,7 +187,7 @@ void AstraDriver::advertiseROSTopics()
     //image_transport::SubscriberStatusCallback itssc = boost::bind(&AstraDriver::colorConnectCb, this);
     //ros::SubscriberStatusCallback rssc = boost::bind(&AstraDriver::colorConnectCb, this);
     //pub_color_ = color_it.advertiseCamera("image", 1, itssc, itssc, rssc, rssc);
-    pub_color_ = nh_->create_publisher<sensor_msgs::msg::Image>("image", rmw_qos_profile_sensor_data);
+    pub_color_ = this->create_publisher<sensor_msgs::msg::Image>("image", qos_);
     this->colorConnectCb();
   }
 
@@ -196,7 +196,7 @@ void AstraDriver::advertiseROSTopics()
     //image_transport::SubscriberStatusCallback itssc = boost::bind(&AstraDriver::irConnectCb, this);
     //ros::SubscriberStatusCallback rssc = boost::bind(&AstraDriver::irConnectCb, this);
     //pub_ir_ = ir_it.advertiseCamera("image", 1, itssc, itssc, rssc, rssc);
-    pub_ir_ = nh_->create_publisher<sensor_msgs::msg::Image>("ir_image", rmw_qos_profile_sensor_data);
+    pub_ir_ = this->create_publisher<sensor_msgs::msg::Image>("ir_image", qos_);
     this->irConnectCb();
   }
 
@@ -207,8 +207,8 @@ void AstraDriver::advertiseROSTopics()
     //ros::SubscriberStatusCallback rssc = boost::bind(&AstraDriver::depthConnectCb, this);
     //pub_depth_raw_ = depth_it.advertiseCamera("image_raw", 1, itssc, itssc, rssc, rssc);
     //pub_depth_ = depth_raw_it.advertiseCamera("image", 1, itssc, itssc, rssc, rssc);
-    pub_depth_raw_ = nh_->create_publisher<sensor_msgs::msg::Image>("depth", rmw_qos_profile_sensor_data);
-    pub_depth_camera_info_ = nh_->create_publisher<sensor_msgs::msg::CameraInfo>("depth_camera_info", rmw_qos_profile_sensor_data);
+    pub_depth_raw_ = this->create_publisher<sensor_msgs::msg::Image>("depth", qos_);
+    pub_depth_camera_info_ = this->create_publisher<sensor_msgs::msg::CameraInfo>("depth_camera_info", qos_);
     this->depthConnectCb();
   }
 
@@ -425,7 +425,7 @@ void AstraDriver::colorConnectCb()
         device_->stopIRStream();
       }
 
-      device_->setColorFrameCallback(boost::bind(&AstraDriver::newColorFrameCallback, this, _1));
+      device_->setColorFrameCallback([this](sensor_msgs::msg::Image::UniquePtr image) { newColorFrameCallback(std::move(image)); });
 
       ROS_INFO("Starting color stream.");
       device_->startColorStream();
@@ -467,7 +467,7 @@ void AstraDriver::depthConnectCb()
   {
     if(can_publish_depth_)
     {
-      device_->setDepthFrameCallback(boost::bind(&AstraDriver::newDepthFrameCallback, this, _1));
+      device_->setDepthFrameCallback([this](sensor_msgs::msg::Image::UniquePtr image) { newDepthFrameCallback(std::move(image)); });
 
       ROS_INFO("Starting depth stream.");
       device_->startDepthStream();
@@ -516,7 +516,7 @@ void AstraDriver::irAttemptStream()
 {
   if(can_publish_ir_)
   {
-    device_->setIRFrameCallback(boost::bind(&AstraDriver::newIRFrameCallback, this, _1));
+    device_->setIRFrameCallback([this](sensor_msgs::msg::Image::UniquePtr image) { newIRFrameCallback(std::move(image)); });
 
     ROS_INFO("Starting IR stream.");
     device_->startIRStream();
@@ -527,7 +527,7 @@ void AstraDriver::irAttemptStream()
   }
 }
 
-void AstraDriver::newIRFrameCallback(sensor_msgs::msg::Image::SharedPtr image)
+void AstraDriver::newIRFrameCallback(sensor_msgs::msg::Image::UniquePtr image)
 {
   //if ((++data_skip_ir_counter_)%data_skip_==0)
   {
@@ -539,12 +539,12 @@ void AstraDriver::newIRFrameCallback(sensor_msgs::msg::Image::SharedPtr image)
       //image->header.stamp = image->header.stamp + ir_time_offset_;
 
       //pub_ir_.publish(image, getIRCameraInfo(image->width, image->height, image->header.stamp));
-      pub_ir_->publish(image);
+      pub_ir_->publish(std::move(image));
     }
   }
 }
 
-void AstraDriver::newColorFrameCallback(sensor_msgs::msg::Image::SharedPtr image)
+void AstraDriver::newColorFrameCallback(sensor_msgs::msg::Image::UniquePtr image)
 {
   //if ((++data_skip_color_counter_)%data_skip_==0)
   {
@@ -556,12 +556,12 @@ void AstraDriver::newColorFrameCallback(sensor_msgs::msg::Image::SharedPtr image
       //image->header.stamp = image->header.stamp + color_time_offset_;
 
       //pub_color_.publish(image, getColorCameraInfo(image->width, image->height, image->header.stamp));
-      pub_color_->publish(image);
+      pub_color_->publish(std::move(image));
     }
   }
 }
 
-void AstraDriver::newDepthFrameCallback(sensor_msgs::msg::Image::SharedPtr image)
+void AstraDriver::newDepthFrameCallback(sensor_msgs::msg::Image::UniquePtr image)
 {
   //if ((++data_skip_depth_counter_)%data_skip_==0)
   {
@@ -618,19 +618,19 @@ void AstraDriver::newDepthFrameCallback(sensor_msgs::msg::Image::SharedPtr image
 
       //if (depth_subscribers_ )
       {
-        sensor_msgs::msg::Image::SharedPtr floating_point_image = rawToFloatingPointConversion(image);
-        //pub_depth_.publish(floating_point_image, cam_info);
-        pub_depth_raw_->publish(floating_point_image);
         pub_depth_camera_info_->publish(getDepthCameraInfo(image->width, image->height, image->header.stamp));
+        sensor_msgs::msg::Image::UniquePtr floating_point_image = rawToFloatingPointConversion(std::move(image));
+        //pub_depth_.publish(floating_point_image, cam_info);
+        pub_depth_raw_->publish(std::move(floating_point_image));
       }
     }
   }
 }
 
 // Methods to get calibration parameters for the various cameras
-sensor_msgs::msg::CameraInfo::SharedPtr AstraDriver::getDefaultCameraInfo(int width, int height, double f) const
+sensor_msgs::msg::CameraInfo::UniquePtr AstraDriver::getDefaultCameraInfo(int width, int height, double f) const
 {
-  sensor_msgs::msg::CameraInfo::SharedPtr info = std::make_shared<sensor_msgs::msg::CameraInfo>();
+  sensor_msgs::msg::CameraInfo::UniquePtr info = std::make_unique<sensor_msgs::msg::CameraInfo>();
 
   info->width  = width;
   info->height = height;
@@ -672,9 +672,9 @@ sensor_msgs::msg::CameraInfo::SharedPtr AstraDriver::getDefaultCameraInfo(int wi
 }
 
 /// @todo Use binning/ROI properly in publishing camera infos
-sensor_msgs::msg::CameraInfo::SharedPtr AstraDriver::getColorCameraInfo(int width, int height, builtin_interfaces::msg::Time time) const
+sensor_msgs::msg::CameraInfo::UniquePtr AstraDriver::getColorCameraInfo(int width, int height, builtin_interfaces::msg::Time time) const
 {
-  sensor_msgs::msg::CameraInfo::SharedPtr info;
+  sensor_msgs::msg::CameraInfo::UniquePtr info;
 
 /*
   if (color_info_manager_->isCalibrated())
@@ -702,9 +702,9 @@ sensor_msgs::msg::CameraInfo::SharedPtr AstraDriver::getColorCameraInfo(int widt
 }
 
 
-sensor_msgs::msg::CameraInfo::SharedPtr AstraDriver::getIRCameraInfo(int width, int height, builtin_interfaces::msg::Time time) const
+sensor_msgs::msg::CameraInfo::UniquePtr AstraDriver::getIRCameraInfo(int width, int height, builtin_interfaces::msg::Time time) const
 {
-  sensor_msgs::msg::CameraInfo::SharedPtr info;
+  sensor_msgs::msg::CameraInfo::UniquePtr info;
 
 /*
   if (ir_info_manager_->isCalibrated())
@@ -731,7 +731,7 @@ sensor_msgs::msg::CameraInfo::SharedPtr AstraDriver::getIRCameraInfo(int width, 
   return info;
 }
 
-sensor_msgs::msg::CameraInfo::SharedPtr AstraDriver::getDepthCameraInfo(int width, int height, builtin_interfaces::msg::Time time) const
+sensor_msgs::msg::CameraInfo::UniquePtr AstraDriver::getDepthCameraInfo(int width, int height, builtin_interfaces::msg::Time time) const
 {
   // The depth image has essentially the same intrinsics as the IR image, BUT the
   // principal point is offset by half the size of the hardware correlation window
@@ -739,7 +739,7 @@ sensor_msgs::msg::CameraInfo::SharedPtr AstraDriver::getDepthCameraInfo(int widt
 
   double scaling = (double)width / 640;
 
-  sensor_msgs::msg::CameraInfo::SharedPtr info = getIRCameraInfo(width, height, time);
+  sensor_msgs::msg::CameraInfo::UniquePtr info = getIRCameraInfo(width, height, time);
   info->k[2] -= depth_ir_offset_x_*scaling; // cx
   info->k[5] -= depth_ir_offset_y_*scaling; // cy
   info->p[2] -= depth_ir_offset_x_*scaling; // cx
@@ -753,24 +753,24 @@ void AstraDriver::readConfigFromParameterServer()
 {
   // Load frame name parameters
   // TODO(Kukanani): reinstate ir_frame_id_ as listed in the commented section below
-  pnh_->get_parameter("depth_frame_id", depth_frame_id_);
+  this->get_parameter("depth_frame_id", depth_frame_id_);
   ROS_INFO_STREAM("Using depth frame id " << depth_frame_id_);
 
-  pnh_->get_parameter("color_frame_id", color_frame_id_);
+  this->get_parameter("color_frame_id", color_frame_id_);
   ROS_INFO_STREAM("Using color frame id " << color_frame_id_);
 
   // Load channel disabling parameters
-  pnh_->get_parameter("use_ir", can_publish_ir_);
+  this->get_parameter("use_ir", can_publish_ir_);
   if(!can_publish_ir_)
   {
     ROS_INFO("Astra IR camera disabled");
   }
-  pnh_->get_parameter("use_color", can_publish_color_);
+  this->get_parameter("use_color", can_publish_color_);
   if(!can_publish_color_)
   {
     ROS_INFO("Astra RGB camera disabled");
   }
-  pnh_->get_parameter("use_depth", can_publish_depth_);
+  this->get_parameter("use_depth", can_publish_depth_);
   if(!can_publish_depth_)
   {
     ROS_INFO("Astra depth camera disabled");
@@ -778,7 +778,7 @@ void AstraDriver::readConfigFromParameterServer()
 
   // Load the depth registration parameter, which may have been set before
   //   driver initialization.
-  pnh_->get_parameter("depth_registration", depth_registration_);
+  this->get_parameter("depth_registration", depth_registration_);
   if(depth_registration_)
   {
     ROS_INFO("Astra depth registration enabled");
@@ -1111,11 +1111,11 @@ int AstraDriver::lookupVideoModeFromDynConfig(int mode_nr, AstraVideoMode& video
   return ret;
 }
 
-sensor_msgs::msg::Image::SharedPtr AstraDriver::rawToFloatingPointConversion(sensor_msgs::msg::Image::SharedPtr raw_image)
+sensor_msgs::msg::Image::UniquePtr AstraDriver::rawToFloatingPointConversion(sensor_msgs::msg::Image::UniquePtr raw_image)
 {
   static const float bad_point = std::numeric_limits<float>::quiet_NaN ();
 
-  sensor_msgs::msg::Image::SharedPtr new_image = std::make_shared<sensor_msgs::msg::Image>();
+  sensor_msgs::msg::Image::UniquePtr new_image = std::make_unique<sensor_msgs::msg::Image>();
 
   new_image->header = raw_image->header;
   new_image->width = raw_image->width;

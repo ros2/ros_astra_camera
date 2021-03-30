@@ -65,26 +65,25 @@
 namespace astra_wrapper
 {
 
-class AstraDriver
+class AstraDriver : public rclcpp::Node
 {
 public:
-  //AstraDriver(ros::NodeHandle& n, ros::NodeHandle& pnh) ;
-  AstraDriver(rclcpp::Node::SharedPtr& n, rclcpp::Node::SharedPtr& pnh, size_t width, size_t height, double framerate,
+  AstraDriver(const std::string&, const rclcpp::NodeOptions&, size_t width, size_t height, double framerate,
               size_t dwidth, size_t dheight, double dframerate, PixelFormat dformat);
 
 private:
   //typedef astra_camera::AstraConfig Config;
   //typedef dynamic_reconfigure::Server<Config> ReconfigureServer;
 
-  void newIRFrameCallback(sensor_msgs::msg::Image::SharedPtr image);
-  void newColorFrameCallback(sensor_msgs::msg::Image::SharedPtr image);
-  void newDepthFrameCallback(sensor_msgs::msg::Image::SharedPtr image);
+  void newIRFrameCallback(sensor_msgs::msg::Image::UniquePtr image);
+  void newColorFrameCallback(sensor_msgs::msg::Image::UniquePtr image);
+  void newDepthFrameCallback(sensor_msgs::msg::Image::UniquePtr image);
 
   // Methods to get calibration parameters for the various cameras
-  sensor_msgs::msg::CameraInfo::SharedPtr getDefaultCameraInfo(int width, int height, double f) const;
-  sensor_msgs::msg::CameraInfo::SharedPtr getColorCameraInfo(int width, int height, builtin_interfaces::msg::Time time) const;
-  sensor_msgs::msg::CameraInfo::SharedPtr getIRCameraInfo(int width, int height, builtin_interfaces::msg::Time time) const;
-  sensor_msgs::msg::CameraInfo::SharedPtr getDepthCameraInfo(int width, int height, builtin_interfaces::msg::Time time) const;
+  sensor_msgs::msg::CameraInfo::UniquePtr getDefaultCameraInfo(int width, int height, double f) const;
+  sensor_msgs::msg::CameraInfo::UniquePtr getColorCameraInfo(int width, int height, builtin_interfaces::msg::Time time) const;
+  sensor_msgs::msg::CameraInfo::UniquePtr getIRCameraInfo(int width, int height, builtin_interfaces::msg::Time time) const;
+  sensor_msgs::msg::CameraInfo::UniquePtr getDepthCameraInfo(int width, int height, builtin_interfaces::msg::Time time) const;
 
   void readConfigFromParameterServer();
 
@@ -112,14 +111,11 @@ private:
   void genVideoModeTableMap();
   int lookupVideoModeFromDynConfig(int mode_nr, AstraVideoMode& video_mode);
 
-  sensor_msgs::msg::Image::SharedPtr rawToFloatingPointConversion(sensor_msgs::msg::Image::SharedPtr raw_image);
+  sensor_msgs::msg::Image::UniquePtr rawToFloatingPointConversion(sensor_msgs::msg::Image::UniquePtr raw_image);
 
   void setIRVideoMode(const AstraVideoMode& ir_video_mode);
   void setColorVideoMode(const AstraVideoMode& color_video_mode);
   void setDepthVideoMode(const AstraVideoMode& depth_video_mode);
-
-  rclcpp::Node::SharedPtr nh_;
-  rclcpp::Node::SharedPtr pnh_;
 
   boost::shared_ptr<AstraDeviceManager> device_manager_;
   boost::shared_ptr<AstraDevice> device_;
@@ -198,6 +194,7 @@ private:
   // bool use_device_time_;
 
   //Config old_config_;
+  rclcpp::QoS qos_;
 };
 
 }

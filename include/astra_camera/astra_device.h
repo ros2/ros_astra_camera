@@ -58,7 +58,7 @@ class SensorInfo;
 namespace astra_wrapper
 {
 
-typedef boost::function<void(sensor_msgs::msg::Image::SharedPtr image)> FrameCallbackFunction;
+typedef boost::function<void(sensor_msgs::msg::Image::UniquePtr image)> FrameCallbackFunction;
 
 class AstraFrameListener;
 
