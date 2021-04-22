@@ -89,7 +89,7 @@ ament_target_dependencies(astra_wrapper
   "rclcpp"
   "sensor_msgs"
 )
-target_link_libraries(astra_wrapper  ${Boost_LIBRARIES})
+target_link_libraries(astra_wrapper  ${Boost_LIBRARIES} OpenNI2)
 add_dependencies(astra_wrapper OpenNI2 orbbec)
 
 add_library(astra_driver_lib src/astra_driver.cpp)
@@ -98,13 +98,13 @@ ament_target_dependencies(astra_driver_lib
   "rclcpp"
   "sensor_msgs"
 )
-target_link_libraries(astra_driver_lib astra_wrapper ${Boost_LIBRARIES})
+target_link_libraries(astra_driver_lib astra_wrapper ${Boost_LIBRARIES} OpenNI2)
 add_dependencies(astra_driver_lib OpenNI2 orbbec)
 
 add_executable(astra_camera_node
    ros/astra_camera_node.cpp
 )
-target_link_libraries(astra_camera_node astra_driver_lib)
+target_link_libraries(astra_camera_node astra_driver_lib OpenNI2)
 add_dependencies(astra_camera_node OpenNI2 orbbec)
 
 install(TARGETS astra_camera_node
@@ -117,13 +117,6 @@ install(TARGETS astra_wrapper astra_driver_lib
   RUNTIME DESTINATION bin
 )
 
-install(FILES ${CMAKE_BINARY_DIR}/openni2/Redist/liborbbec.so
-  DESTINATION lib
-)
-
-install(DIRECTORY ${CMAKE_BINARY_DIR}/openni2/Redist/OpenNI2
-  DESTINATION lib
-)
 
 install(DIRECTORY include/${PROJECT_NAME}
   DESTINATION include
