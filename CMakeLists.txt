@@ -49,45 +49,13 @@ ELSEIF ((${MACHINES} MATCHES "aarch64") AND (${MACHINES_BIT} MATCHES "32"))
     set(HOST_PLATFORM "arm")
 ENDIF ()
 
-include(FetchContent)
-FetchContent_Declare(astra_openni2
-        GIT_REPOSITORY git@github.com:clalancette/OpenNI2.git
-        GIT_TAG clalancette-devel
-        )
-FetchContent_MakeAvailable(astra_openni2)
-
-#generate_dynamic_reconfigure_options(cfg/Astra.cfg)
-#find_package(rosidl_default_generators REQUIRED)
-#rosidl_generate_interfaces(${PROJECT_NAME}
-#        "srv/GetSerial.srv
-#         srv/GetDeviceType.srv
-#         srv/GetIRGain.srv
-#         srv/GetCameraInfo.srv
-#         srv/GetUVCExposure.srv
-#         srv/GetIRExposure.srv
-#         srv/GetUVCGain.srv
-#         srv/GetUVCWhiteBalance.srv
-#         srv/SetUVCWhiteBalance.srv
-#         srv/SetUVCGain.srv
-#         srv/SetIRExposure.srv
-#         srv/SetIRGain.srv
-#         srv/SetIRFlood.srv
-#         srv/SetLaser.srv
-#         srv/SetLDP.srv
-#         srv/SetUVCExposure.srv
-#         srv/ResetIRGain.srv
-#         srv/ResetIRExposure.srv
-#         srv/SwitchIRCamera.srv"
-#        )
-
-link_directories(${CMAKE_CURRENT_BINARY_DIR}/openni2/Redist)
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/openni2)
+link_directories(${CMAKE_CURRENT_BINARY_DIR}/openni2_redist/${HOST_PLATFORM})
 
 include_directories(include
         ${Boost_INCLUDE_DIRS}
-        ${OpenNI2_INCLUDE_DIRS}
-        #                    ${orbbec_INCLUDE_DIRS}
-        #                    ${CMAKE_CURRENT_SOURCE_DIR}/include/openni2
-        ${libuvc_INCLUDE_DIRS}
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/openni2
+        ${CMAKE_CURRENT_BINARY_DIR}/openni2_redist/${HOST_PLATFORM}
         )
 
 
@@ -111,8 +79,6 @@ ament_target_dependencies(astra_wrapper
 
 
 target_link_libraries(astra_wrapper -lOpenNI2 ${Boost_LIBRARIES})
-target_link_libraries(astra_wrapper ${Boost_LIBRARIES} OpenNI2)
-add_dependencies(astra_wrapper OpenNI2 orbbec)
 
 add_library(astra_driver_lib src/astra_driver.cpp src/astra_device_type.cpp)
 ament_target_dependencies(astra_driver_lib
@@ -143,17 +109,6 @@ install(TARGETS astra_wrapper astra_driver_lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin
         )
-
-#add_executable(camera_node src/libuvc_camera/main.cpp
-#        src/libuvc_camera/camera_driver.cpp
-#        src/astra_device_type.cpp)
-#target_link_libraries(camera_node ${libuvc_LIBRARIES} ${Boost_LIBRARIES})
-#ament_target_dependencies(camera_node
-#        "builtin_interfaces"
-#        "rclcpp"
-#        "sensor_msgs"
-#        "image_transport"
-#        "camera_info_manager")
 
 ament_export_include_directories(include)
 ament_export_libraries(astra_driver_lib astra_wrapper)

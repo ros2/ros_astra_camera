@@ -997,7 +997,6 @@ sensor_msgs::msg::CameraInfo::UniquePtr AstraDriver::getProjectorCameraInfo(int 
 void AstraDriver::readConfigFromParameterServer()
 {
   // Load frame name parameters
-  // TODO(Kukanani): reinstate ir_frame_id_ as listed in the commented section below
   this->get_parameter("depth_frame_id", depth_frame_id_);
   ROS_INFO_STREAM("Using depth frame id " << depth_frame_id_);
 
@@ -1060,7 +1059,7 @@ std::string AstraDriver::resolveDeviceURI(const std::string& device_id)
     device_manager_->getConnectedDeviceURIs();
 
   //for tes
-  #if 0
+  #if 1
    for (size_t i = 0; i < available_device_URIs->size(); ++i)
    {
        std::string s = (*available_device_URIs)[i];
