@@ -49,8 +49,8 @@ ELSEIF ((${MACHINES} MATCHES "aarch64") AND (${MACHINES_BIT} MATCHES "32"))
     set(HOST_PLATFORM "arm")
 ENDIF ()
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/openni2)
-link_directories(${CMAKE_CURRENT_BINARY_DIR}/openni2_redist/${HOST_PLATFORM})
+set(ORBBEC_OPENNI2_REDIST  "${CMAKE_CURRENT_SOURCE_DIR}/include/openni2_redist/${HOST_PLATFORM}")
+link_directories(${ORBBEC_OPENNI2_REDIST})
 
 include_directories(include
         ${Boost_INCLUDE_DIRS}
@@ -78,7 +78,7 @@ ament_target_dependencies(astra_wrapper
         "camera_info_manager")
 
 
-target_link_libraries(astra_wrapper -lOpenNI2 ${Boost_LIBRARIES})
+target_link_libraries(astra_wrapper -lOpenNI2 -L${ORBBEC_OPENNI2_REDIST} ${Boost_LIBRARIES})
 
 add_library(astra_driver_lib src/astra_driver.cpp src/astra_device_type.cpp)
 ament_target_dependencies(astra_driver_lib
@@ -98,9 +98,25 @@ ament_target_dependencies(astra_camera_node
         "sensor_msgs"
         "image_transport"
         "camera_info_manager")
-
-
 install(TARGETS astra_camera_node
+        DESTINATION lib/${PROJECT_NAME}
+        )
+
+#Testing
+add_executable(astra_list_devices
+        src/list_devices.cpp
+        )
+target_link_libraries(astra_list_devices astra_wrapper)
+install(TARGETS astra_list_devices
+        DESTINATION lib/${PROJECT_NAME}
+        )
+
+
+
+install(FILES include/openni2_redist/${HOST_PLATFORM}/libOpenNI2.so
+        DESTINATION lib/${PROJECT_NAME}
+        )
+install(FILES include/openni2_redist/${HOST_PLATFORM}/OpenNI2
         DESTINATION lib/${PROJECT_NAME}
         )
 
@@ -109,6 +125,11 @@ install(TARGETS astra_wrapper astra_driver_lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin
         )
+
+install(
+        DIRECTORY launch
+        DESTINATION share/${PROJECT_NAME}
+)
 
 ament_export_include_directories(include)
 ament_export_libraries(astra_driver_lib astra_wrapper)
