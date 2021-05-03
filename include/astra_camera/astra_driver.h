@@ -41,13 +41,8 @@
 //#include <sensor_msgs/Image.h>
 #include <sensor_msgs/msg/camera_info.hpp>
 #include <sensor_msgs/msg/image.hpp>
+#include <camera_info_manager/camera_info_manager.hpp>
 #include <builtin_interfaces/msg/time.hpp>
-
-//#include <dynamic_reconfigure/server.h>
-//#include <astra_camera/AstraConfig.h>
-
-//#include <image_transport/image_transport.h>
-//#include <camera_info_manager/camera_info_manager.h>
 
 #include <string>
 #include <vector>
@@ -56,6 +51,19 @@
 #include "astra_camera/astra_device.h"
 #include "astra_camera/astra_video_mode.h"
 //#include "astra_camera/GetSerial.h"
+//#include "astra_camera/GetDeviceType.h"
+//#include "astra_camera/GetIRGain.h"
+//#include "astra_camera/SetIRGain.h"
+//#include "astra_camera/GetIRExposure.h"
+//#include "astra_camera/SetIRExposure.h"
+//#include "astra_camera/SetLaser.h"
+//#include "astra_camera/SetLDP.h"
+//#include "astra_camera/ResetIRGain.h"
+//#include "astra_camera/ResetIRExposure.h"
+//#include "astra_camera/GetCameraInfo.h"
+//#include "astra_camera/SetIRFlood.h"
+//#include "astra_camera/SwitchIRCamera.h"
+#include <astra_camera/astra_device_type.h>
 
 //#include <ros/ros.h>
 #include <rcl/time.h>
@@ -70,6 +78,7 @@ class AstraDriver : public rclcpp::Node
 public:
   AstraDriver(const std::string&, const rclcpp::NodeOptions&, size_t width, size_t height, double framerate,
               size_t dwidth, size_t dheight, double dframerate, PixelFormat dformat);
+  ~AstraDriver();
 
 private:
   //typedef astra_camera::AstraConfig Config;
@@ -84,23 +93,33 @@ private:
   sensor_msgs::msg::CameraInfo::UniquePtr getColorCameraInfo(int width, int height, builtin_interfaces::msg::Time time) const;
   sensor_msgs::msg::CameraInfo::UniquePtr getIRCameraInfo(int width, int height, builtin_interfaces::msg::Time time) const;
   sensor_msgs::msg::CameraInfo::UniquePtr getDepthCameraInfo(int width, int height, builtin_interfaces::msg::Time time) const;
+  sensor_msgs::msg::CameraInfo::UniquePtr getProjectorCameraInfo(int width, int height, builtin_interfaces::msg::Time time) const;
+  sensor_msgs::msg::CameraInfo convertAstraCameraInfo(OBCameraParams p, builtin_interfaces::msg::Time time) const;
 
   void readConfigFromParameterServer();
 
   // resolves non-URI device IDs to URIs, e.g. '#1' is resolved to the URI of the first device
-  std::string resolveDeviceURI(const std::string& device_id) throw(AstraException);
+  std::string resolveDeviceURI(const std::string& device_id);
   void initDevice();
 
   void advertiseROSTopics();
 
-  void colorConnectCb();
+  void imageConnectCb();
   void depthConnectCb();
-  void irConnectCb();
 
-  /// Start the IR stream unless IR streaming is disabled. Because of the
-  ///   restriction on IR/RGB simultaneous streaming, IR streaming is initiated
-  ///   from multiple methods.
-  void irAttemptStream();
+//  bool getSerialCb(astra_camera::GetSerialRequest& req, astra_camera::GetSerialResponse& res);
+//  bool getDeviceTypeCb(astra_camera::GetDeviceTypeRequest& req, astra_camera::GetDeviceTypeResponse& res);
+//  bool getIRGainCb(astra_camera::GetIRGainRequest& req, astra_camera::GetIRGainResponse& res);
+//  bool setIRGainCb(astra_camera::SetIRGainRequest& req, astra_camera::SetIRGainResponse& res);
+//  bool getIRExposureCb(astra_camera::GetIRExposureRequest& req, astra_camera::GetIRExposureResponse& res);
+//  bool setIRExposureCb(astra_camera::SetIRExposureRequest& req, astra_camera::SetIRExposureResponse& res);
+//  bool setLaserCb(astra_camera::SetLaserRequest& req, astra_camera::SetLaserResponse& res);
+//  bool resetIRGainCb(astra_camera::ResetIRGainRequest& req, astra_camera::ResetIRGainResponse& res);
+//  bool resetIRExposureCb(astra_camera::ResetIRExposureRequest& req, astra_camera::ResetIRExposureResponse& res);
+//  bool getCameraInfoCb(astra_camera::GetCameraInfoRequest& req, astra_camera::GetCameraInfoResponse& res);
+//  bool setIRFloodCb(astra_camera::SetIRFloodRequest& req, astra_camera::SetIRFloodResponse& res);
+//  bool switchIRCameraCb(astra_camera::SwitchIRCameraRequest& req, astra_camera::SwitchIRCameraResponse& res);
+//  bool setLDPCb(astra_camera::SetLDPRequest& req, astra_camera::SetLDPResponse& res);
 
   //bool getSerialCb(astra_camera::GetSerialRequest& req, astra_camera::GetSerialResponse& res);
 
@@ -123,7 +142,7 @@ private:
   std::string device_id_;
 
   /** \brief get_serial server*/
-  //ros::ServiceServer get_serial_server;
+//  ros::ServiceServer get_serial_server;
 
   /** \brief reconfigure server*/
   //boost::shared_ptr<ReconfigureServer> reconfigure_server_;
@@ -143,7 +162,7 @@ private:
   //ros::Publisher pub_projector_info_;
 
   /** \brief Camera info manager objects. */
-  //boost::shared_ptr<camera_info_manager::CameraInfoManager> color_info_manager_, ir_info_manager_;
+  std::unique_ptr<camera_info_manager::CameraInfoManager> color_info_manager_, ir_info_manager_;
 
   AstraVideoMode ir_video_mode_;
   AstraVideoMode color_video_mode_;
@@ -176,6 +195,8 @@ private:
   int data_skip_color_counter_;
   int data_skip_depth_counter_;
 
+  bool rgb_preferred_;
+
   bool auto_exposure_;
   bool auto_white_balance_;
 
@@ -183,6 +204,7 @@ private:
   bool color_subscribers_;
   bool depth_subscribers_;
   bool depth_raw_subscribers_;
+  bool projector_info_subscribers_;
 
   /// If false, then camera will never start an IR stream.
   bool can_publish_ir_;
@@ -195,6 +217,7 @@ private:
 
   //Config old_config_;
   rclcpp::QoS qos_;
+  int uvc_flip_;
 };
 
 }

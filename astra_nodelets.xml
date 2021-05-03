@@ -6,4 +6,12 @@
     </description>
   </class>
 
+  <class name="astra_camera/driver"
+         type="astra_camera::CameraNodelet"
+         base_class_type="nodelet::Nodelet">
+    <description> 
+      UVC camera driver nodelet.
+    </description>
+  </class>
+
 </library>
