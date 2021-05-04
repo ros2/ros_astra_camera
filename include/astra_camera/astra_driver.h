@@ -45,6 +45,10 @@
 #include <camera_info_manager/camera_info_manager.hpp>
 #include <sensor_msgs/msg/camera_info.hpp>
 #include <sensor_msgs/msg/image.hpp>
+#include <camera_info_manager/camera_info_manager.hpp>
+#include <builtin_interfaces/msg/time.hpp>
+#include <image_transport/image_transport.hpp>
+
 #include <string>
 #include <vector>
 
@@ -120,18 +124,14 @@ private:
   std::set<std::string> alreadyOpen;
   boost::mutex connect_mutex_;
   // published topics
-  // image_transport::CameraPublisher pub_color_;
-  // image_transport::CameraPublisher pub_depth_;
-  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr pub_depth_raw_;
-  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr pub_color_;
-  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr pub_ir_;
+  image_transport::CameraPublisher pub_color_;
+  image_transport::CameraPublisher pub_ir_;
+  image_transport::CameraPublisher pub_depth_;
   rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr pub_depth_camera_info_;
-  // image_transport::CameraPublisher pub_depth_raw_;
-  // image_transport::CameraPublisher pub_ir_;
-  // ros::Publisher pub_projector_info_;
 
   /** \brief Camera info manager objects. */
-  std::unique_ptr<camera_info_manager::CameraInfoManager> color_info_manager_, ir_info_manager_;
+  std::unique_ptr<camera_info_manager::CameraInfoManager> color_info_manager_;
+  std::unique_ptr<camera_info_manager::CameraInfoManager>   ir_info_manager_;
 
   AstraVideoMode ir_video_mode_;
   AstraVideoMode color_video_mode_;
@@ -141,7 +141,8 @@ private:
   std::string color_frame_id_;
   std::string depth_frame_id_;
 
-  std::string color_info_url_, ir_info_url_;
+  std::string color_info_url_;
+  std::string ir_info_url_;
 
   bool color_depth_synchronization_;
   bool depth_registration_;

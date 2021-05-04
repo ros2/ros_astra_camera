@@ -19,7 +19,7 @@ astra_camera_node:
     ir_time_offset: 0.0
     rgb_camera_info_url: ''
     rgb_preferred: true
-    use_color: true
+    use_color: false
     use_depth: true
     use_device_time: true
     use_ir: true
