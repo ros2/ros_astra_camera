@@ -49,7 +49,7 @@ ELSEIF ((${MACHINES} MATCHES "aarch64") AND (${MACHINES_BIT} MATCHES "32"))
     set(HOST_PLATFORM "arm")
 ENDIF ()
 
-set(ORBBEC_OPENNI2_REDIST  "${CMAKE_CURRENT_SOURCE_DIR}/include/openni2_redist/${HOST_PLATFORM}")
+set(ORBBEC_OPENNI2_REDIST "${CMAKE_CURRENT_SOURCE_DIR}/include/openni2_redist/${HOST_PLATFORM}")
 link_directories(${ORBBEC_OPENNI2_REDIST})
 
 include_directories(include
@@ -112,7 +112,6 @@ install(TARGETS astra_list_devices
         )
 
 
-
 install(FILES include/openni2_redist/${HOST_PLATFORM}/libOpenNI2.so
         DESTINATION lib/${PROJECT_NAME}
         )
@@ -126,10 +125,14 @@ install(TARGETS astra_wrapper astra_driver_lib
         RUNTIME DESTINATION bin
         )
 
-install(
-        DIRECTORY launch
+install(DIRECTORY
+        launch
         DESTINATION share/${PROJECT_NAME}
-)
+        )
+install(DIRECTORY
+        config
+        DESTINATION share/${PROJECT_NAME}
+        )
 
 ament_export_include_directories(include)
 ament_export_libraries(astra_driver_lib astra_wrapper)
