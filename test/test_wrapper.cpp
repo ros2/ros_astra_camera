@@ -84,18 +84,21 @@ int main()
     AstraVideoMode color_video_mode{width, height, framerate, astra_wrapper::PixelFormat::PIXEL_FORMAT_RGB888};
     device->setColorVideoMode(color_video_mode);
 
+    AstraVideoMode ir_video_mode{width, height, framerate, astra_wrapper::PixelFormat::PIXEL_FORMAT_GRAY16};
+    device->setIRVideoMode(color_video_mode);
+
     AstraVideoMode depth_video_mode{dwidth, dheight, dframerate, astra_wrapper::PixelFormat::PIXEL_FORMAT_DEPTH_1_MM};
     device->setDepthVideoMode(depth_video_mode);
 
-    device->setIRFrameCallback(boost::bind(&IRCallback, _1));
-    device->setColorFrameCallback(boost::bind(&ColorCallback, _1));
-    device->setDepthFrameCallback(boost::bind(&DepthCallback, _1));
+    device->setIRFrameCallback([](sensor_msgs::msg::Image::SharedPtr image) { IRCallback(image); });
+    device->setColorFrameCallback([](sensor_msgs::msg::Image::SharedPtr image) { ColorCallback(image); });
+    device->setDepthFrameCallback([](sensor_msgs::msg::Image::SharedPtr image) { DepthCallback(image); });
 
     ir_counter_ = 0;
     color_counter_ = 0;
     depth_counter_ = 0;
 
-//    device->startColorStream();
+    device->startColorStream();
     device->startDepthStream();
 
     boost::this_thread::sleep(boost::posix_time::milliseconds(1000));

@@ -12,7 +12,7 @@ astra_camera_node:
     depth_ir_offset_x: 0.0
     depth_ir_offset_y: 0.0
     depth_mode: 13
-    depth_registration: false
+    depth_registration: true
     depth_time_offset: 0.0
     device_id: '#1'
     ir_mode: 13
@@ -21,7 +21,7 @@ astra_camera_node:
     rgb_preferred: true
     use_color: false
     use_depth: true
-    use_device_time: true
+    use_device_time: false
     use_ir: true
     use_sim_time: false
     z_offset_mm: 0.0

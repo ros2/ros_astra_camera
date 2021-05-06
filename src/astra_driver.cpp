@@ -251,6 +251,8 @@ void AstraDriver::applyConfigToOpenNIDevice()
   data_skip_depth_counter_ = 0;
 
   setIRVideoMode(ir_video_mode_);
+  device_->setIRExposure(0x419);
+  device_->setIRGain(0x8);
   if (device_->hasColorSensor())
   {
     setColorVideoMode(color_video_mode_);
@@ -398,7 +400,7 @@ void AstraDriver::newIRFrameCallback(sensor_msgs::msg::Image::SharedPtr image)
       image->header.frame_id = ir_frame_id_;
       // image->header.stamp = image->header.stamp + ir_time_offset_;
 
-//      auto cam_info_ptr = getIRCameraInfo(image->width, image->height, image->header.stamp);
+      //      auto cam_info_ptr = getIRCameraInfo(image->width, image->height, image->header.stamp);
       pub_ir_.publish(image);
     }
   }
@@ -416,7 +418,7 @@ void AstraDriver::newColorFrameCallback(sensor_msgs::msg::Image::SharedPtr image
       // image->header.stamp = image->header.stamp + color_time_offset_;
 
       // pub_color_.publish(image, getColorCameraInfo(image->width, image->height, image->header.stamp));
-//      auto cam_info_ptr = getColorCameraInfo(image->width, image->height, image->header.stamp);
+      //      auto cam_info_ptr = getColorCameraInfo(image->width, image->height, image->header.stamp);
       pub_color_.publish(image);
     }
   }
@@ -1326,6 +1328,10 @@ rcl_interfaces::msg::SetParametersResult AstraDriver::configCb(const std::vector
   ir_video_mode_.pixel_format_ = PIXEL_FORMAT_GRAY16;
   color_video_mode_.pixel_format_ = PIXEL_FORMAT_RGB888;
   depth_video_mode_.pixel_format_ = PIXEL_FORMAT_DEPTH_1_MM;
+
+  std::cout << "------------------- depth_mode is ------------------" << depth_video_mode_ << std::endl;
+  std::cout << "------------------- color mode is ------------------" << color_video_mode_ << std::endl;
+  std::cout << "------------------- IR mode is ------------------" << ir_video_mode_ << std::endl;
 
   applyConfigToOpenNIDevice();
 
