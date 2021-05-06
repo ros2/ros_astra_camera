@@ -76,16 +76,16 @@ private:
   void setupParameterServer();
   rcl_interfaces::msg::SetParametersResult configCb(const std::vector<rclcpp::Parameter>& parameters);
 
-  void newIRFrameCallback(sensor_msgs::msg::Image::UniquePtr image);
-  void newColorFrameCallback(sensor_msgs::msg::Image::UniquePtr image);
-  void newDepthFrameCallback(sensor_msgs::msg::Image::UniquePtr image);
+  void newIRFrameCallback(sensor_msgs::msg::Image::SharedPtr image);
+  void newColorFrameCallback(sensor_msgs::msg::Image::SharedPtr image);
+  void newDepthFrameCallback(sensor_msgs::msg::Image::SharedPtr image);
 
   // Methods to get calibration parameters for the various cameras
-  sensor_msgs::msg::CameraInfo::UniquePtr getDefaultCameraInfo(int width, int height, double f) const;
-  sensor_msgs::msg::CameraInfo::UniquePtr getColorCameraInfo(int width, int height, builtin_interfaces::msg::Time time) const;
-  sensor_msgs::msg::CameraInfo::UniquePtr getIRCameraInfo(int width, int height, builtin_interfaces::msg::Time time) const;
-  sensor_msgs::msg::CameraInfo::UniquePtr getDepthCameraInfo(int width, int height, builtin_interfaces::msg::Time time) const;
-  sensor_msgs::msg::CameraInfo::UniquePtr getProjectorCameraInfo(int width, int height, builtin_interfaces::msg::Time time) const;
+  sensor_msgs::msg::CameraInfo::SharedPtr getDefaultCameraInfo(int width, int height, double f) const;
+  sensor_msgs::msg::CameraInfo::SharedPtr getColorCameraInfo(int width, int height, builtin_interfaces::msg::Time time) const;
+  sensor_msgs::msg::CameraInfo::SharedPtr getIRCameraInfo(int width, int height, builtin_interfaces::msg::Time time) const;
+  sensor_msgs::msg::CameraInfo::SharedPtr getDepthCameraInfo(int width, int height, builtin_interfaces::msg::Time time) const;
+  sensor_msgs::msg::CameraInfo::SharedPtr getProjectorCameraInfo(int width, int height, builtin_interfaces::msg::Time time) const;
   sensor_msgs::msg::CameraInfo convertAstraCameraInfo(OBCameraParams p, builtin_interfaces::msg::Time time) const;
 
   void readConfigFromParameterServer();
@@ -104,7 +104,7 @@ private:
   void genVideoModeTableMap();
   int lookupVideoModeFromDynConfig(int mode_nr, AstraVideoMode& video_mode);
 
-  sensor_msgs::msg::Image::UniquePtr rawToFloatingPointConversion(sensor_msgs::msg::Image::UniquePtr raw_image);
+  sensor_msgs::msg::Image::SharedPtr rawToFloatingPointConversion(sensor_msgs::msg::Image::SharedPtr raw_image);
 
   void setIRVideoMode(const AstraVideoMode& ir_video_mode);
   void setColorVideoMode(const AstraVideoMode& color_video_mode);
@@ -124,14 +124,14 @@ private:
   std::set<std::string> alreadyOpen;
   boost::mutex connect_mutex_;
   // published topics
-  image_transport::CameraPublisher pub_color_;
-  image_transport::CameraPublisher pub_ir_;
-  image_transport::CameraPublisher pub_depth_;
+  image_transport::Publisher pub_color_;
+  image_transport::Publisher pub_ir_;
+  image_transport::Publisher pub_depth_;
   rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr pub_depth_camera_info_;
 
   /** \brief Camera info manager objects. */
-  std::unique_ptr<camera_info_manager::CameraInfoManager> color_info_manager_;
-  std::unique_ptr<camera_info_manager::CameraInfoManager>   ir_info_manager_;
+  std::shared_ptr<camera_info_manager::CameraInfoManager> color_info_manager_;
+  std::shared_ptr<camera_info_manager::CameraInfoManager>   ir_info_manager_;
 
   AstraVideoMode ir_video_mode_;
   AstraVideoMode color_video_mode_;
