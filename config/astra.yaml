@@ -3,7 +3,7 @@ astra_camera_node:
   ros__parameters:
     auto_exposure: false
     auto_white_balance: false
-    color_depth_synchronization: true
+    color_depth_synchronization: false
     color_frame_id: openni_color_optical_frame
     color_time_offset: 0.0
     data_skip: 0
@@ -12,7 +12,7 @@ astra_camera_node:
     depth_ir_offset_x: 0.0
     depth_ir_offset_y: 0.0
     depth_mode: 13
-    depth_registration: true
+    depth_registration: false
     depth_time_offset: 0.0
     device_id: '#1'
     ir_mode: 13
