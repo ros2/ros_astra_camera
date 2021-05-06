@@ -111,6 +111,11 @@ install(TARGETS astra_list_devices
         DESTINATION lib/${PROJECT_NAME}
         )
 
+add_executable(astra_test_wrapper test/test_wrapper.cpp )
+target_link_libraries(astra_test_wrapper astra_wrapper ${Boost_LIBRARIES})
+install(TARGETS astra_test_wrapper
+        DESTINATION lib/${PROJECT_NAME}
+        )
 
 install(FILES include/openni2_redist/${HOST_PLATFORM}/libOpenNI2.so
         DESTINATION lib/${PROJECT_NAME}
