@@ -32,112 +32,18 @@
 
 #include "astra_camera/astra_driver.h"
 
-static std::string get_command_option(const std::vector<std::string> &args, const std::string &option)
-{
-  auto it = std::find(args.begin(), args.end(), option);
-  if (it != args.end() && ++it != args.end()) {
-    return *it;
-  }
-  return std::string();
-}
 
-static bool get_command_option_exists(const std::vector<std::string> &args, const std::string &option)
-{
-  return std::find(args.begin(), args.end(), option) != args.end();
-}
+int main(int argc, char **argv) {
+    rclcpp::init(argc, argv);
+    rclcpp::NodeOptions options;
 
-static bool parse_command_options(int argc, char **argv, size_t *width, size_t *height,
-                                  double *framerate, size_t *depth_width, size_t *depth_height,
-                                  double *depth_framerate, astra_wrapper::PixelFormat *dformat,
-                                  bool *use_ir, bool *use_color, bool *use_depth)
-{
-  std::vector<std::string> args(argv, argv + argc);
+//  pnh->set_parameter_if_not_set("use_ir", use_ir);
+//  pnh->set_parameter_if_not_set("use_color", use_color);
+//  pnh->set_parameter_if_not_set("use_depth", use_depth);
 
-  std::string width_str = get_command_option(args, "-w");
-  if (!width_str.empty()) {
-    *width = std::stoul(width_str.c_str());
-  }
+    rclcpp::Node::SharedPtr n = std::make_shared<astra_wrapper::AstraDriver>("astra_camera", options);
 
-  std::string height_str = get_command_option(args, "-h");
-  if (!height_str.empty()) {
-    *height = std::stoul(height_str.c_str());
-  }
+    rclcpp::spin(n);
 
-  std::string framerate_str = get_command_option(args, "-f");
-  if (!framerate_str.empty()) {
-    *framerate = std::stod(framerate_str.c_str());
-  }
-
-  std::string dwidth_str = get_command_option(args, "-dw");
-  if (!dwidth_str.empty()) {
-    *depth_width = std::stoul(dwidth_str.c_str());
-  }
-
-  std::string dheight_str = get_command_option(args, "-dh");
-  if (!dheight_str.empty()) {
-    *depth_height = std::stoul(dheight_str.c_str());
-  }
-
-  std::string dframerate_str = get_command_option(args, "-df");
-  if (!dframerate_str.empty()) {
-    *depth_framerate = std::stod(dframerate_str.c_str());
-  }
-
-  std::string dformat_str = get_command_option(args, "-dformat");
-  if (!dformat_str.empty()) {
-    if (dformat_str == "1MM") {
-      *dformat = astra_wrapper::PixelFormat::PIXEL_FORMAT_DEPTH_1_MM;
-    }
-    else if (dformat_str == "100UM") {
-      *dformat = astra_wrapper::PixelFormat::PIXEL_FORMAT_DEPTH_100_UM;
-    }
-    else {
-      std::cerr << "Invalid depth format; must be \"1MM\" or \"100UM\"" << std::endl;
-      return false;
-    }
-  }
-
-  *use_ir = !get_command_option_exists(args, "-I");
-  *use_color = !get_command_option_exists(args, "-C");
-  *use_depth = !get_command_option_exists(args, "-D");
-
-  return true;
-}
-
-int main(int argc, char **argv){
-
-  // RGB
-  size_t width = 1280;
-  size_t height = 1024;
-  double framerate = 30;
-
-  // Depth
-  size_t dwidth = 640;
-  size_t dheight = 480;
-  double dframerate = 30;
-  astra_wrapper::PixelFormat dformat = astra_wrapper::PixelFormat::PIXEL_FORMAT_DEPTH_1_MM;
-
-  bool use_ir = true;
-  bool use_color = true;
-  bool use_depth = true;
-
-  // TODO(clalancette): parsing the command-line options here is temporary until
-  // we get parameters working in ROS2.
-  if (!parse_command_options(argc, argv, &width, &height, &framerate, &dwidth, &dheight, &dframerate, &dformat, &use_ir, &use_color, &use_depth)) {
-    return 1;
-  }
-
-  rclcpp::init(argc, argv);
-  rclcpp::Node::SharedPtr n = rclcpp::Node::make_shared("astra_camera");
-  rclcpp::Node::SharedPtr pnh = rclcpp::Node::make_shared("astra_camera_");
-
-  pnh->set_parameter_if_not_set("use_ir", use_ir);
-  pnh->set_parameter_if_not_set("use_color", use_color);
-  pnh->set_parameter_if_not_set("use_depth", use_depth);
-
-  astra_wrapper::AstraDriver drv(n, pnh, width, height, framerate, dwidth, dheight, dframerate, dformat);
-
-  rclcpp::spin(n);
-
-  return 0;
+    return 0;
 }

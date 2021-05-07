@@ -66,7 +66,7 @@ void AstraFrameListener::onNewFrame(openni::VideoStream& stream)
 
   if (m_frame.isValid() && callback_)
   {
-    sensor_msgs::msg::Image::SharedPtr image(new sensor_msgs::msg::Image);
+    sensor_msgs::msg::Image::UniquePtr image = std::make_unique<sensor_msgs::msg::Image>();
 
     //ros::Time ros_now = ros::Time::now();
     rcutils_time_point_value_t ros_now;
@@ -164,7 +164,7 @@ void AstraFrameListener::onNewFrame(openni::VideoStream& stream)
         break;
     }
 
-    callback_(image);
+    callback_(std::move(image));
   }
 
 }
